@@ -1,0 +1,51 @@
+version: "3.7"
+
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    deploy:
+      replicas: 1
+      # placement:
+      #   constraints:
+      #     - node.role == worker
+    networks:
+      - app_net
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    deploy:
+      replicas: 1
+      # placement:
+      #   constraints:
+      #     - node.role == worker
+    networks:
+      - app_net
+
+  app:
+    image: hungho66splabs/dotnet-docker
+    ports:
+      - 5000:80
+    depends_on:
+      - db
+    deploy:
+      replicas: 3
+      # placement:
+      #   constraints:
+      #     - node.role == worker
+    networks:
+      - app_net
+
+volumes:
+  postgres-data:
+
+networks:
+  app_net:
+    driver: overlay
